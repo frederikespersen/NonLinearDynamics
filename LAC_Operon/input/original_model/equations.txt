@@ -1,4 +1,4 @@
-> PARAMETERS FOR LAC OPERON MODEL (YILDIRIM ET. AL 2004)
+> EqUATIONS FOR LAC OPERON MODEL (YILDIRIM ET AL. 2004)
 >
 > Ensure the following equation format:
 >   - Each species must be provided with a time index, current time is '@'

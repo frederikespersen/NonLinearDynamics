@@ -1,4 +1,4 @@
-> PARAMETERS FOR CORRECTED LAC OPERON MODEL (YILDIRIM ET. AL 2004)
+> EQUATIONS FOR CORRECTED LAC OPERON MODEL (YILDIRIM ET AL. 2004)
 > Correction:   Remove dilution exponential terms exp(-mu * tau_M/B)
 > Reasoning:    One is interested in a previous species concentration;
 >               by diluting it, one approximates the current species concentration.

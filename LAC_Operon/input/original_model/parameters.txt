@@ -1,4 +1,4 @@
-> PARAMETERS FOR LAC OPERON MODEL (YILDIRIM ET. AL 2004)
+> PARAMETERS FOR LAC OPERON MODEL (YILDIRIM ET AL. 2004)
 >
 > Ensure parameters are in consistent units.
 > Units:
