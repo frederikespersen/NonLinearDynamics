@@ -1,0 +1,4 @@
+The LAC_Operon directory investigates the models described in Yildirim et al. 2004.
+
+DOI: 10.1063/1.1689451
+~ Necmettin Yildirim, Moises Santillan, Daisuke Horike, Michael C Mackey

@@ -1,0 +1,12 @@
+> PARAMETERS FOR CORRECTED LAC OPERON MODEL (YILDIRIM ET. AL 2004)
+> Correction:   Remove dilution exponential terms exp(-mu * tau_M/B)
+> Reasoning:    One is interested in a previous species concentration;
+>               by diluting it, one approximates the current species concentration.
+>               Removing it would yield the true past concentration, which affected mRNA/Betagalactoside synthesis.
+>
+> Ensure the following equation format:
+>   - Each species must be provided with a time index, current time is '@'
+>
+M: alpha_M * ((1 + K_1 * ((A[@-tau_M]) ** n)) / (K + K_1 * ((A[@-tau_M]) ** n))) - (gamma_M + mu) * M[@]
+B: alpha_B * M[@-tau_B] - (gamma_B + mu) * B[@]
+A: alpha_A * B[@] * ((L) / (K_L + L)) - beta_A * B[@] * ((A[@]) / (K_A + A[@])) - (gamma_A + mu) * A[@]

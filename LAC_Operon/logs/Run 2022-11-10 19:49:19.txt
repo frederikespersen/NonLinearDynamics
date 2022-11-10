@@ -1,4 +1,4 @@
->>> 2022-11-10 19:27:13.746750
+>>> 2022-11-10 19:49:19.528371
 INITIALIZING SYSTEM
 System species:
   - M,   dM/dt =alpha_M * ((1 + K_1 * ((A[@-tau_M]) ** n)) / (K + K_1 * ((A[@-tau_M]) ** n))) - (gamma_M + mu) * M[@]
@@ -24,19 +24,19 @@ Global system parameters:
   - tau_B:   2.0
   - L:       30.0
 
->>> 2022-11-10 19:27:13.748399
+>>> 2022-11-10 19:49:19.530047
 SETTING UP SIMULATION
 Setup succesful
 
->>> 2022-11-10 19:27:13.748557
+>>> 2022-11-10 19:49:19.530208
 STARTING UP SIMULATION
 
->>> 2022-11-10 19:27:14.951616
+>>> 2022-11-10 19:49:20.624604
 FINISHED SIMULATION
 Simulated 10000 time steps of 0.001 time units for a total of 10 time units.
-Simulation finished in 1.2 seconds.
+Simulation finished in 1.09 seconds.
 
->>> 2022-11-10 19:27:15.017879
+>>> 2022-11-10 19:49:20.692088
 SAVING RESULTS
-Saved results to 'results/Run 2022-11-10 19:27:13.csv'.
+Saved results to 'results/Run 2022-11-10 19:49:19.csv'.
 

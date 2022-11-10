@@ -1,8 +1,8 @@
 from utils import NLSystem, load_parameters, load_equations
 
 # Loading system equations and parameters
-equations = load_equations("equations.txt")
-parameters = load_parameters("parameters.txt")
+equations = load_equations("input/corrected_model/equations.txt")
+parameters = load_parameters("input/corrected_model/parameters.txt")
 species = [*equations.keys()]
 
 # Setting simulation parameters
