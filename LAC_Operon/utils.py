@@ -1,8 +1,6 @@
 ########################################################################################################################
 #
 # FUNCTIONS FOR LAC OPERON MODEL SIMULATION
-# Contents:
-#   - load_paramters
 #
 ########################################################################################################################
 
@@ -105,8 +103,8 @@ class NLSystem:
         self.equations = equations
 
         # Checking that all equation parameters are provided
-        eq_params = " ".join([*equations.values()])
-        for v in [" ", "(", ")", "-", "+", "/", "*", "[", "]", "@"]:
+        eq_params = ' '.join([*equations.values()])
+        for v in [' ', 'exp', '(', ')', '-', '+', '/', '*', '[', ']', '@']:
             eq_params = eq_params.replace(v, '|')
         eq_params = [*set(eq_params.split('|'))]
         eq_params.remove('')
@@ -123,8 +121,8 @@ class NLSystem:
 
         # Setting log settings
         self.log = log
-        self.init_time = datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S")
-        self.logfile = logfile.replace("[TIME]", self.init_time)
+        self.init_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+        self.logfile = logfile.replace('[TIME]', self.init_time)
 
         # Printing success message
         message = "INITIALIZING SYSTEM\n"
@@ -144,9 +142,9 @@ class NLSystem:
 
         :param message: A string to be printed and loggged
         """
-        print(message, "\n")
-
         if self.log:
+
+            print(message, "\n")
 
             # Creating dir if missing
             for dir in self.logfile.split('/')[:-1]:
@@ -202,13 +200,12 @@ class NLSystem:
         for i, s in enumerate(self.species):
             for j in range(d2_start):
                 self.data[i, j] = species_start[s]
-
         # Setting the index of the data array where t = 0
         self.data_t0_j = d2_start - 1
 
         # Printing success message
         message = "SETTING UP SIMULATION\n"
-        message += "Setup succesful"
+        message += "Time parameters have been scaled appropriately and initial data has been set up."
         self.logprint(message)
 
     def scale_time_lookup_parameters(self, time_parameters: list[str]):
@@ -231,7 +228,7 @@ class NLSystem:
 
         # Finding decimal lengths of parameters
         decimals = [str(self.parameters[tp]).split('.')[1] for tp in time_parameters]
-        decimals = [d.rstrip("0") for d in decimals]
+        decimals = [d.rstrip('0') for d in decimals]
         decimal_lengths = [len(d) for d in decimals]
 
         # Setting time scaling as 10 to the power of maximum decimal length
@@ -264,26 +261,28 @@ class NLSystem:
         except AttributeError:
             Exception("Must setup simulation with .setup_simulation before running!")
 
-        # Initializing parameters
+        # Initializing global parameters
         for p, v in self.parameters.items():
             setattr(sys.modules[__name__], p, v)
 
         # Printing startup message
-        message = "STARTING UP SIMULATION"
+        message = "STARTING UP SIMULATION\n"
+        message += "Running simulation. This may take a while..."
         self.logprint(message)
 
         # Running simulation
         t1 = time.time()
+        t = [0.]
         for j in range(self.data_t0_j+1, self.data.shape[1]):
+            t += [t[-1] + self.timestep]
             for i in range(self.data.shape[0]):
                 self.data[i, j] = self.data[i, j-1] + self.timestep * self.gradient(i, j)
         t2 = time.time()
 
         # Returning results as dataframe
         results = self.data[:, self.data_t0_j:]
-        results_time = np.arange(0, self.time + self.timestep, self.timestep)
-        self.results = pd.DataFrame(columns=self.species, data=results.T, index=results_time)
-        self.results.index.name = "Time"
+        self.results = pd.DataFrame(columns=self.species, data=results.T, index=t)
+        self.results.index.name = 'Time'
 
         # Printing success message
         message = "FINISHED SIMULATION\n"
@@ -305,6 +304,7 @@ class NLSystem:
 
         # Reformatting for this timestep
         equation = equation.replace('@', str(j-1))
+        equation = equation.replace('exp', 'math.exp')
         for s in self.species:
             equation = equation.replace(f'{s}[', f'self.data[i,')
 
@@ -316,7 +316,7 @@ class NLSystem:
 
         :param filename: Path of .CSV file
         """
-        filename = filename.replace("[TIME]", self.init_time)
+        filename = filename.replace('[TIME]', self.init_time)
 
         # Creating directory if missing
         for dir in filename.split('/')[:-1]:
