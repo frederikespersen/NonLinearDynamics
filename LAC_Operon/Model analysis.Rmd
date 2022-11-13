@@ -71,22 +71,21 @@ Loading data into dataframes
 data <- read_csv("results/Starting conditions scan 2022-11-11 10:37:22.csv") %>%
   mutate(across(c(Model, Starting_Conditions_Set, L), as.factor))
 ```
-  
-Scaling and pivoting data  
-```{r}
-pivot_scaled_data <-
-  data %>% 
-  mutate(across(c(M, B, A), scale)) %>%
-  pivot_longer(cols = -c(Time, Model, Starting_Conditions_Set, L), names_to="Species", values_to="Concentration") %>%
-  mutate(across(c(Species), as.factor))
-```
 
 ### Visualising results
 ```{r}
-ggplot(pivot_scaled_data %>% filter(Model == "Corrected") %>% mutate(Species.Set = paste(Species, Starting_Conditions_Set, delimiter=".")), aes(x=Time, y=Concentration, color=L, lty=Species.Set)) +
-  geom_line(show.legend=F) +
-  #scale_y_log10() +
-  theme_classic()
+data %>%
+  pivot_longer(cols = -c(Time, Model, Starting_Conditions_Set, L), names_to="Species", values_to="Concentration") %>%
+  mutate(across(c(Species), as.factor)) %>% 
+  filter(Model == "Corrected") %>%
+  ggplot(aes(x=Time, y=Concentration, color=Starting_Conditions_Set)) +
+    geom_line(show.legend=F) +
+    facet_grid(Species~L, scales="free_y") +
+    scale_y_log10() +
+    labs(title="Time progression curves for the three species for different Lactose concentrations [nM]") +
+    xlab("Time [min]") +
+    ylab("Concentration [nM]") +
+    theme_classic()
 ```
 ```{r}
 sim_end = max(data$Time)
@@ -94,7 +93,11 @@ data %>%
   pivot_longer(cols=c(M, B, A), names_to="Species", values_to="Concentration") %>%
   filter(Time == sim_end) %>%
   group_by(Species, L) %>%
-  summarize(SteadyState=mean(Concentration))
+  summarize(SteadyState=mean(Concentration)) %>%
+  ggplot(aes(x=L, y=SteadyState, fill=L)) +
+    geom_bar(stat="identity") +
+    facet_wrap(~Species, scales="free_y") +
+    theme_classic()
 ```
 
 

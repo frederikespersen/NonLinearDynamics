@@ -75,6 +75,33 @@ def load_equations(filename: str) -> dict[str: float]:
     return equations
 
 
+def eulers_method(y_0: float, h: float, dydx_0: float) -> float:
+    """
+    Uses Euler's method to return the numeric solutions to the point a timestep h away.
+
+    :param y_0: The starting point value
+    :param h: The timestep
+    :param dydx_0: The time gradient at the starting point
+    :return: y_1; The ending point value
+    """
+    y_1 = y_0 + h * dydx_0
+    return y_1
+
+
+def improved_eulers_method(y_0: float, h: float, dydx_0: float) -> float:
+    """
+    Uses the improved Euler's method to return the numeric solutions to the point a timestep h away.
+
+    :param y_0: The starting point value
+    :param h: The timestep
+    :param dydx_0: The time gradient at the starting point
+    :return: y_1; The ending point value
+    """
+    y_1_a = y_0 + h * dydx_0
+    y_1 = y_0 + h * (y_0 + y_1_a) / 2
+    return y_1
+
+
 class NLSystem:
     """
     A class for setting up a system of chemical species and their (nonlinear) differential equations describing their change.
@@ -273,10 +300,15 @@ class NLSystem:
         # Running simulation
         t1 = time.time()
         t = [0.]
+        # Looping over time points
         for j in range(self.data_t0_j+1, self.data.shape[1]):
             t += [t[-1] + self.timestep]
+            # Looping over species
             for i in range(self.data.shape[0]):
-                self.data[i, j] = self.data[i, j-1] + self.timestep * self.gradient(i, j)
+                y_0 = self.data[i, j-1]
+                h = self.timestep
+                dydx_0 = self.gradient(i, j-1)
+                self.data[i, j] = improved_eulers_method(y_0, h, dydx_0)
         t2 = time.time()
 
         # Returning results as dataframe
