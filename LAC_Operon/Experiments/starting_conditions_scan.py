@@ -1,7 +1,7 @@
 ########################################################################################################################
 #
 #   SCANNING STARTING CONDITIONS
-#   Runs time course experiments where initial values of M, B, A and Lactose are varied.
+#   Runs time course experiments where initial values of M, B, A, and Lactose are varied.
 #
 ########################################################################################################################
 
