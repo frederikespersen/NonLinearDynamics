@@ -1,6 +1,9 @@
 ########################################################################################################################
 #
-# FUNCTIONS FOR LAC OPERON MODEL SIMULATION
+#   FUNCTIONS FOR MODEL SIMULATION
+#   Contains
+#   - functions or loading parameters and equations
+#   - A class for a model of differential equations
 #
 ########################################################################################################################
 
