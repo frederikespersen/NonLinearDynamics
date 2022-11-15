@@ -1,0 +1,6 @@
+> EQUATIONS FOR TESTING: LOGISTIC MODEL
+>
+> Ensure the following equation format:
+>   - Each species must be provided with a time index, current time is '@'
+>
+N: R * N[@] * (1 - N[@]/K)

@@ -22,4 +22,4 @@ This project strives to:
 	Experiments/utils.py 	: Module containing functions and classes for running simulations
 	Results			: Data (not included in online repo.) and logs of results of experiments
 	Analysis		: Files for running analysis of simulations and reports hereof
-		
+	Testing                 : Files for testing the Experiments/utils module	

@@ -1,0 +1,60 @@
+---
+title: "Testingg of simulation tools"
+subtitle: "Non Linear Dynamics"
+author: "Frederik Espersen Knudsen"
+date: as.character(Sys.Date())
+output: pdf_document
+---
+
+# Model simulation tools testing
+
+## Setup
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(broom)
+```
+
+\newpage
+# Testing with logistic model
+
+### Loading simulation results
+Loading and structuring data:
+```{r echo=FALSE}
+logistic_results = "Logistic model/Results/2022-11-15 23:36:07/results.csv"
+
+logistic_data <-
+  read.csv(logistic_results) %>%
+  nest(Data = c(Time, N))
+
+logistic_data %>% glimpse()
+logistic_data %>% pluck("Data", 100) %>% head()
+```
+  
+### Checking types of parameters
+```{r, echo=FALSE}
+logistic_data %>%
+  select(-Data) %>%
+  pivot_longer(everything(), names_to="Parameter", values_to="Value") %>%
+  unique() %>%
+  count(Parameter)
+```
+  
+###  Investigating time step size
+```{r echo=FALSE}
+logistic_data %>%
+  #filter(Timestep == 0.0001) %>%
+  unnest(Data) %>%
+  mutate(Time = Time * 60,
+         Timestep = Timestep * 60) %>%
+  ggplot(aes(x=Time, y=N, color=R)) +
+    geom_point(size = 0.1) +
+    facet_grid(Timestep~K, scales="free_y") +
+    scale_y_log10() +
+    labs(title="Time courses with varying time step sizes [s]",
+         subtitle="Logistic model | Investigating time step size") +
+    xlab("Time [s]") +
+    ylab("Number of N [ ]") +
+    theme_classic()
+```
+
+
