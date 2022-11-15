@@ -109,7 +109,7 @@ class NLSystem:
 
         # Checking that all equation parameters are provided
         eq_params = ' '.join([*equations.values()])
-        for v in [' ', 'exp', '(', ')', '-', '+', '/', '*', '[', ']', '@']:
+        for v in [' ', 'exp', '(', ')', '-', '+', '/', '*', '[', ']', '@', 'round']:
             eq_params = eq_params.replace(v, '|')
         eq_params = [*set(eq_params.split('|'))]
         eq_params.remove('')
@@ -186,7 +186,8 @@ class NLSystem:
         # Setting time conditions
         self.time = time
         self.timestep = timestep
-        self.scale_time_lookup_parameters(time_parameters)
+        if len(time_parameters) > 0:
+            self.scale_time_lookup_parameters(time_parameters)
 
         # Calculating steps in simulation
         self.n_steps = math.ceil(time / timestep)
@@ -197,13 +198,15 @@ class NLSystem:
         # The second dimension will be all time points, equal to the amount of simulation steps
         d2 = self.n_steps
         # With lookup parameters, starting conditions must be extrapolated backwards, making array longer
-        d2_start = max([self.parameters[tp] for tp in time_parameters])
-        if len(time_parameters) == 0:  # If no time lookup parameters, you still need one starting condition
+        if len(time_parameters) > 0:
+            d2_start = max([self.parameters[tp] for tp in time_parameters])
+        else:  # If no time lookup parameters, you still need one starting condition
             d2_start = 1
         d2 += d2_start
 
         # Initializing data array
         self.data = np.empty([d1, d2])
+        self.data.fill(None)
 
         # Filling data array with starting conditions
         for i, s in enumerate(self.species):
@@ -268,27 +271,33 @@ class NLSystem:
         # Running simulation
         t1 = time.time()
 
-        # Noting time data
-        t = [0.]
+        # Preparing for error catching
+        e = None
+        np.seterr(all='raise')
 
         # Looping over time points
-        e = None
         for j in range(self.data_t0_j + 1, self.data.shape[1]):
-            t += [t[-1] + self.timestep]
+
+            # Continue while no error
+            if e is not None:
+                break
 
             # Looping over species
             for i in range(self.data.shape[0]):
 
                 # Estimating solution with improved Euler's method
-                np.seterr(all='raise')
                 try:
                     self.improved_eulers_method(i, j)
+
+                # Catching errors
                 except FloatingPointError:
                     e = f"Time step of {self.timestep} lead to {self.species[i]} diverging or turning negative! (Try smaller timestep)"
+
                     if stop_on_error:
                         raise Exception(e)
 
-        if not stop_on_error and e is not None:
+        # Returning error
+        if e is not None:
             self.logprint(e)
 
         # Ending simulation
@@ -296,6 +305,7 @@ class NLSystem:
 
         # Defining Results dataframe
         results = self.data[:, self.data_t0_j:]
+        t = [n * self.timestep for n in range(self.n_steps + 1)]
         self.results = pd.DataFrame(columns=self.species, data=results.T, index=t)
         self.results.index.name = 'Time'
 
