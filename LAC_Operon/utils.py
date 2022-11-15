@@ -75,39 +75,13 @@ def load_equations(filename: str) -> dict[str: float]:
     return equations
 
 
-def eulers_method(y_0: float, h: float, dydx_0: float) -> float:
-    """
-    Uses Euler's method to return the numeric solutions to the point a timestep h away.
-
-    :param y_0: The starting point value
-    :param h: The timestep
-    :param dydx_0: The time gradient at the starting point
-    :return: y_1; The ending point value
-    """
-    y_1 = y_0 + h * dydx_0
-    return y_1
-
-
-def improved_eulers_method(y_0: float, h: float, dydx_0: float) -> float:
-    """
-    Uses the improved Euler's method to return the numeric solutions to the point a timestep h away.
-
-    :param y_0: The starting point value
-    :param h: The timestep
-    :param dydx_0: The time gradient at the starting point
-    :return: y_1; The ending point value
-    """
-    y_1_a = y_0 + h * dydx_0
-    y_1 = y_0 + h * (y_0 + y_1_a) / 2
-    return y_1
-
-
 class NLSystem:
     """
     A class for setting up a system of chemical species and their (nonlinear) differential equations describing their change.
     """
 
-    def __init__(self, species: list[str], equations: dict[str: str], parameters: dict[str: float], log=True, logfile="logs/Run [TIME].txt"):
+    def __init__(self, species: list[str], equations: dict[str: str], parameters: dict[str: float], log=True,
+                 verbose=True, logdir="results/logs", logfilename="Run [TIME].txt"):
         """
         Initializes system class.
         Takes data about system species, equations and parameters.
@@ -117,7 +91,8 @@ class NLSystem:
         :param equations: A dict with key of species and value of a string of the equation. Time variable is '@'.
         :param parameters: A dict with key of parameter names and values of parameter values
         :param log: Whether to log output or not
-        :param logfile: Path to file to output log messages in
+        :param logdir: The directory of the log file
+        :param logfilename: Filename to output log messages in
         """
         # Setting species
         self.species = species
@@ -147,9 +122,12 @@ class NLSystem:
         self.parameters = parameters
 
         # Setting log settings
+        self.verbose = verbose
         self.log = log
         self.init_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
-        self.logfile = logfile.replace('[TIME]', self.init_time)
+        self.logdir = logdir
+        self.logfilename = logfilename.replace('[TIME]', self.init_time)
+        self.logpath = self.logdir + '/' + self.logfilename
 
         # Printing success message
         message = "INITIALIZING SYSTEM\n"
@@ -160,25 +138,25 @@ class NLSystem:
         message += "Global system parameters:"
         for p in self.parameters:
             space = len(max(self.parameters, key=len)) - len(p) + 1
-            message += f"\n  - {p}:" + " "*space + f"{parameters[p]}"
+            message += f"\n  - {p}:" + " " * space + f"{parameters[p]}"
         self.logprint(message)
 
     def logprint(self, message: str):
         """
-        Prints a message to prompt and logs it in logfile
+        Prints a message to prompt and logs it in logpath
 
         :param message: A string to be printed and loggged
         """
-        if self.log:
-
+        if self.verbose:
             print(message, "\n")
 
+        if self.log:
+
             # Creating dir if missing
-            for dir in self.logfile.split('/')[:-1]:
-                os.makedirs(dir, exist_ok=True)
+            os.makedirs(self.logdir, exist_ok=True)
 
             # Writing message to file
-            filename = self.logfile
+            filename = self.logpath
             header = f">>> {datetime.datetime.now()}"
             log_entry = f"{header}\n{message}\n\n"
             try:
@@ -188,7 +166,8 @@ class NLSystem:
                 with open(filename, 'x') as file:
                     file.write(log_entry)
 
-    def setup_simulation(self, species_start: dict[str: float], time: float, timestep: float, time_parameters: list[str]):
+    def setup_simulation(self, species_start: dict[str: float], time: float, timestep: float,
+                         time_parameters: list[str]):
         """
         Takes the starting concentration of species, the time of simulation in minutes, the size of the timestep, and
         the time parameters involved in looking up previous species concentrations.
@@ -207,7 +186,7 @@ class NLSystem:
         self.scale_time_lookup_parameters(time_parameters)
 
         # Calculating steps in simulation
-        self.n_steps = math.ceil(time/timestep)
+        self.n_steps = math.ceil(time / timestep)
 
         # Defining data array dimensions
         # First dimension will be the amount of species
@@ -248,37 +227,23 @@ class NLSystem:
         for tp in time_parameters:
             assert tp in self.parameters, f"Time parameter not found! ('{tp}')"
 
-        # First scaling them to current timestep; Then checking if scaling is sufficient for integer value
+        # Calculating scaling constant based on timestep
         scale = 1 / self.timestep
-        for tp in time_parameters:
-            self.parameters[tp] = self.parameters[tp] * scale
 
         # Finding decimal lengths of parameters
         decimals = [str(self.parameters[tp]).split('.')[1] for tp in time_parameters]
         decimals = [d.rstrip('0') for d in decimals]
         decimal_lengths = [len(d) for d in decimals]
 
-        # Setting time scaling as 10 to the power of maximum decimal length
-        # Thus all time lookup parameters have integer values
-        scale = 10 ** max(decimal_lengths)
+        # Checking that scaling length is enough to eliminate parameter decimals
+        if max(decimal_lengths) > 0:
+            assert scale >= 10**max(decimal_lengths), f"Time parameters {time_parameters} have too many decimals for time step length. Decrease time step or parameter decimals!"
 
-        if scale != 1:
-            # Scaling timestep and parameters accordingly
-            self.timestep /= scale
-            for tp in time_parameters:
-                self.parameters[tp] = self.parameters[tp] * scale
-
-            # Printing success message
-            message = "TIME STEP SCALING\n"
-            message += "Due to non-integer time lookup parameters, the simulation\n"
-            message += f"time step will be scaled down by a factor of {scale}."
-            self.logprint(message)
-
-        # Making parameters integers
+        # Scaling parameters (round is used, since decimals are an artifact of
         for tp in time_parameters:
-            self.parameters[tp] = int(self.parameters[tp])
+            self.parameters[tp] = round(self.parameters[tp] * scale)
 
-    def run_simulation(self):
+    def run_simulation(self, stop_on_error=True):
         """
         Runs a simulation for a system with that has been setup with .setup_simulation.
         """
@@ -299,19 +264,34 @@ class NLSystem:
 
         # Running simulation
         t1 = time.time()
+
+        # Noting time data
         t = [0.]
+
         # Looping over time points
-        for j in range(self.data_t0_j+1, self.data.shape[1]):
+        e = None
+        for j in range(self.data_t0_j + 1, self.data.shape[1]):
             t += [t[-1] + self.timestep]
+
             # Looping over species
             for i in range(self.data.shape[0]):
-                y_0 = self.data[i, j-1]
-                h = self.timestep
-                dydx_0 = self.gradient(i, j-1)
-                self.data[i, j] = improved_eulers_method(y_0, h, dydx_0)
+
+                # Estimating solution with improved Euler's method
+                np.seterr(all='raise')
+                try:
+                    self.improved_eulers_method(i, j)
+                except FloatingPointError:
+                    e = f"Time step of {self.timestep} lead to {self.species[i]} diverging or turning negative! (Try smaller timestep)"
+                    if stop_on_error:
+                        raise Exception(e)
+
+        if not stop_on_error and e is not None:
+            self.logprint(e)
+
+        # Ending simulation
         t2 = time.time()
 
-        # Returning results as dataframe
+        # Defining results dataframe
         results = self.data[:, self.data_t0_j:]
         self.results = pd.DataFrame(columns=self.species, data=results.T, index=t)
         self.results.index.name = 'Time'
@@ -319,14 +299,38 @@ class NLSystem:
         # Printing success message
         message = "FINISHED SIMULATION\n"
         message += f"Simulated {self.n_steps} time steps of {self.timestep} time units for a total of {self.time} time units.\n"
-        message += f"Simulation finished in {round(t2-t1,2)} seconds."
+        message += f"Simulation finished in {round(t2 - t1, 2)} seconds."
         self.logprint(message)
+
+    def improved_eulers_method(self, i: int, j: int):
+        """
+        Uses the improved Euler's method to set the numeric solutions to the time point j for species i.
+        Sets estimate in datarray.
+
+        :param i: Index of species
+        :param j: Index of timestep
+        """
+        # Calculating first estimate y_1 = y_j' with Euler's method
+        y_0 = self.data[i, j - 1]
+        h = self.timestep
+        dydx_0 = self.gradient(i, j - 1)
+        y_1 = y_0 + h * dydx_0
+
+        # Setting intermediate result in data array for use in next gradient estimation
+        self.data[i, j] = y_1
+
+        # Estimating gradient for step j for improved Euler's method
+        dydx_1 = self.gradient(i, j)
+
+        # Calculating final estimate for y_j
+        y_j = y_0 + h * (dydx_0 + dydx_1) / 2
+        self.data[i, j] = y_j
 
     def gradient(self, i: int, j: int) -> float:
         """
         Takes a species at index i and returns the gradient at step j in the data array.
 
-        :param species: The index of the species in the data array
+        :param i: The index of the species in the data array
         :param j: The index of the current time in the data array
         :return: The gradient at time t for the species dS/dt
         """
@@ -335,24 +339,24 @@ class NLSystem:
         equation = self.equations[species]
 
         # Reformatting for this timestep
-        equation = equation.replace('@', str(j-1))
+        equation = equation.replace('@', str(j))
         equation = equation.replace('exp', 'math.exp')
         for s in self.species:
-            equation = equation.replace(f'{s}[', f'self.data[i,')
+            equation = equation.replace(f'{s}[', f'self.data[{i},')
 
         return eval(equation)
 
-    def results_to_csv(self, filename="results/Run [TIME].csv"):
+    def results_to_csv(self, filedir="results", filename="Run [TIME].csv"):
         """
         Saves results of a finished simulation to .CSV file.
 
-        :param filename: Path of .CSV file
+        :param filedir: Directory of file
+        :param filename: Name of .CSV file
         """
-        filename = filename.replace('[TIME]', self.init_time)
+        filename = filedir + '/' + filename.replace('[TIME]', self.init_time)
 
         # Creating directory if missing
-        for dir in filename.split('/')[:-1]:
-            os.makedirs(dir, exist_ok=True)
+        os.makedirs(filedir, exist_ok=True)
 
         # Saving results to .csv
         self.results.to_csv(filename)
@@ -361,11 +365,3 @@ class NLSystem:
         message = "SAVING RESULTS\n"
         message += f"Saved results to '{filename}'."
         self.logprint(message)
-
-
-
-
-
-
-
-
