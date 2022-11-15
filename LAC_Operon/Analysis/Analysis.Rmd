@@ -2,54 +2,58 @@
 title: "Simulation and model analysis"
 subtitle: "Non Linear Dynamics"
 author: "Frederik Espersen Knudsen"
-date: "2022-11-11"
+date: as.character(Sys.Date())
 output: pdf_document
 ---
 
 # LAC Operon Model analysis
-Based on Yildirim et al. 2004.  
+Based on Yildirim et al. 2004.
 
-See repository for more information.  
+See repository for more information.
 
 ## Setup
-
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(broom)
 ```
-  
-\newpage  
+
+\newpage
 # Scan of appropriate time step size
 ### Loading simulation results
 Loading and structuring data:
 ```{r echo=FALSE}
-results_dir = "../Results/timestep_scan"
-data <-
-  tibble(Filename = list.files(results_dir, pattern=".csv")) %>%
-  mutate(Data = map(paste(results_dir, Filename, sep="/"), read.csv)) %>%
+timestep_results_dir = "../Results/Timestep scan/2022-11-15 15:21:18"
+
+timestep_data <-
+  tibble(Filename = list.files(timestep_results_dir, pattern=".csv")) %>%
+  mutate(Data = map(paste(timestep_results_dir, Filename, sep="/"), read.csv)) %>%
   unnest(Data) %>%
   pivot_longer(c(M, B, A), names_to="Species", values_to="Concentration") %>%
   select(-Filename) %>%
   nest(Data = c(Time, Species, Concentration))
 
-data %>% glimpse()
-data %>% pluck("Data", 1) %>% head()
+timestep_data %>% glimpse()
+timestep_data %>% pluck("Data", 1) %>% head()
 ```
-  
+
 ###  Visualizing results
 ```{r echo=FALSE}
-data %>%
-  unnest(Data) %>% 
+timestep_data %>%
+  unnest(Data) %>%
   filter(Concentration > 0 & Concentration < 1000000000) %>%
   mutate(Timestep = Timestep * 60 * 1e3) %>%
-  ggplot(aes(x=Time, y=Concentration, color=Timestep, lty=Model)) +
+  ggplot(aes(x=Time, y=Concentration, color=Model, lty=Model)) +
     geom_line(alpha=0.5) +
     geom_point(size=0.2) +
     facet_grid(Species~Timestep, scales="free_y") +
+    labs(title="Time course of species by time step size [ms]",
+         subtitle="Scan of time step size") +
+    xlab("Time [s]") +
+    ylab("Concentration [nM]") +
     theme_bw()
 
-data %>%
-  unnest(Data) %>% 
+timestep_data %>%
+  unnest(Data) %>%
   filter(Concentration > 0 & Concentration < 1000000000) %>%
   mutate(Timestep = Timestep * 60 * 1e3,
          Time = Time * 60) %>%
@@ -65,29 +69,33 @@ data %>%
     theme_bw()
 ```
 
- 
-\newpage  
+
+
+
+
+\newpage
 # Scan of starting conditions
-  
+
 ### Loading simulation results
 Loading and structuring data:
 ```{r echo=FALSE}
-results_dir = "../Results/starting_conditions_scan"
-data <- 
-  tibble(Filename = list.files(results_dir, pattern=".csv")) %>%
-  mutate(Data = map(paste(results_dir, Filename, sep="/"), read.csv)) %>%
+conditions_results_dir = "../Results/Starting conditions scan/2022-11-15 15:43:15"
+
+conditions_data <-
+  tibble(Filename = list.files(conditions_results_dir, pattern=".csv")) %>%
+  mutate(Data = map(paste(conditions_results_dir, Filename, sep="/"), read.csv)) %>%
   unnest(Data) %>%
   pivot_longer(c(M, B, A), names_to="Species", values_to="Concentration") %>%
   select(-Filename) %>%
   nest(Data = c(Time, Species, Concentration))
 
-data %>% glimpse()
-data %>% pluck("Data", 1) %>% head()
+conditions_data %>% glimpse()
+conditions_data %>% pluck("Data", 1) %>% head()
 ```
-  
+
 ### Visualizing results
 ```{r}
-data %>%
+conditions_data %>%
   unnest(Data) %>%
   mutate(Time = Time * 60,
          L = L * 1e-3) %>%
@@ -97,9 +105,17 @@ data %>%
     scale_y_log10() +
     facet_grid(Species~L, scales="free_y") +
     labs(title="Time course of species by lactose concentrations [µM]",
-         substitle="Scan of starting conditions") +
+         subtitle="Scan of starting conditions") +
     xlab("Time [s]") +
     ylab("Concentration [nM]") +
     theme_bw()
 ```
 
+### Analysing model differences
+Checking null hypothesis: There is no difference between the original and corrected model.
+```{r}
+conditions_data %>%
+  unnest(Data) %>%
+  nest(Data=c(Time, Concentration)) %>%
+  slice(1)
+```
