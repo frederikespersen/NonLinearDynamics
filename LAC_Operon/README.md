@@ -16,10 +16,10 @@ This project strives to:
 
 ### Organization of directory
 
-    2004 Yildirim et al. : Credits to the paper as well as the investigated model and parameters
-		Input								 : Files containing parameters and model equations
-		Experiments					 : Files for running simulations
-		Experiments/utils.py : Module containing functions and classes for running simulations
-		Results							 : Data (not included in online repo.) and logs of results of experiments
-		Analysis						 : Files for running analysis of simulations and reports hereof
+	2004 Yildirim et al.	: Credits to the paper as well as the investigated model and parameters
+	Input			: Files containing parameters and model equations
+	Experiments		: Files for running simulations
+	Experiments/utils.py 	: Module containing functions and classes for running simulations
+	Results			: Data (not included in online repo.) and logs of results of experiments
+	Analysis		: Files for running analysis of simulations and reports hereof
 		
