@@ -4,5 +4,5 @@ This repository includes projects covered in the Quantitative Biology (QB) at th
 
 ### Organization of repository
 
-    LAC_Operon : Treatment of the LAC Operon model by Yildirim et al. 2004
+    LAC Operon : Treatment of the LAC Operon model by Yildirim et al. 2004
     nld.env    : Conda environment used for repository
