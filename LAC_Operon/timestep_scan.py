@@ -30,6 +30,6 @@ for timestep in timesteps:
                              verbose=False)
         LACOperon.setup_simulation(species_start=starting_conditions, time=time, timestep=timestep,
                                    time_parameters=['tau_M', 'tau_B'])
-        LACOperon.run_simulation(stop_on_error=True)
+        LACOperon.run_simulation(stop_on_error=False)
         LACOperon.results_to_csv(filedir=result_dir,
                                  filename=f"{model} ts={timestep} [TIME].csv")

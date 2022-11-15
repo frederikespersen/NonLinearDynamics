@@ -1,8 +1,8 @@
->>> 2022-11-15 10:53:45.708862
+>>> 2022-11-15 12:48:16.770164
 INITIALIZING SYSTEM
 System species:
-  - M,   dM/dt =alpha_M * ((1 + K_1 * ((exp(-mu * tau_M) * A[@-tau_M]) ** n)) / (K + K_1 * ((exp(-mu * tau_M) * A[@-tau_M]) ** n))) - (gamma_M + mu) * M[@]
-  - B,   dB/dt =alpha_B * exp(-mu * tau_B) * M[@-tau_B] - (gamma_B + mu) * B[@]
+  - M,   dM/dt =alpha_M * ((1 + K_1 * ((A[@-tau_M]) ** n)) / (K + K_1 * ((A[@-tau_M]) ** n))) - (gamma_M + mu) * M[@]
+  - B,   dB/dt =alpha_B * M[@-tau_B] - (gamma_B + mu) * B[@]
   - A,   dA/dt =alpha_A * B[@] * ((L) / (K_L + L)) - beta_A * B[@] * ((A[@]) / (K_A + A[@])) - (gamma_A + mu) * A[@]
 (@: The current time t)
 
@@ -24,23 +24,20 @@ Global system parameters:
   - tau_B:   2.0
   - L:       50000.0
 
->>> 2022-11-15 10:53:45.712260
+>>> 2022-11-15 12:48:16.773058
 SETTING UP SIMULATION
 Time parameters have been scaled appropriately and initial data has been set up.
 
->>> 2022-11-15 10:53:45.712511
+>>> 2022-11-15 12:48:16.773299
 STARTING UP SIMULATION
 Running simulation. This may take a while...
 
->>> 2022-11-15 10:53:47.121110
-Time step of 0.0005 lead to B diverging or turning negative! (Try smaller timestep)
-
->>> 2022-11-15 10:53:47.122196
+>>> 2022-11-15 12:48:17.597510
 FINISHED SIMULATION
-Simulated 4000 time steps of 0.0005 time units for a total of 2 time units.
-Simulation finished in 1.41 seconds.
+Simulated 2667 time steps of 0.00075 time units for a total of 2 time units.
+Simulation finished in 0.82 seconds.
 
->>> 2022-11-15 10:53:47.158872
+>>> 2022-11-15 12:48:17.623495
 SAVING RESULTS
-Saved results to 'results/timestep_scan/Original ts=0.0005 2022-11-15 10:53:45.csv'.
+Saved results to 'results/timestep_scan/Corrected ts=0.00075 2022-11-15 12:48:16.csv'.
 

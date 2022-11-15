@@ -1,4 +1,4 @@
->>> 2022-11-15 10:53:52.370974
+>>> 2022-11-15 12:48:10.461166
 INITIALIZING SYSTEM
 System species:
   - M,   dM/dt =alpha_M * ((1 + K_1 * ((A[@-tau_M]) ** n)) / (K + K_1 * ((A[@-tau_M]) ** n))) - (gamma_M + mu) * M[@]
@@ -24,23 +24,23 @@ Global system parameters:
   - tau_B:   2.0
   - L:       50000.0
 
->>> 2022-11-15 10:53:52.371464
+>>> 2022-11-15 12:48:10.466659
 SETTING UP SIMULATION
 Time parameters have been scaled appropriately and initial data has been set up.
 
->>> 2022-11-15 10:53:52.371622
+>>> 2022-11-15 12:48:10.466898
 STARTING UP SIMULATION
 Running simulation. This may take a while...
 
->>> 2022-11-15 10:53:52.450858
-Time step of 0.0075 lead to A diverging or turning negative! (Try smaller timestep)
+>>> 2022-11-15 12:48:12.866318
+Time step of 0.00025 lead to B diverging or turning negative! (Try smaller timestep)
 
->>> 2022-11-15 10:53:52.451566
+>>> 2022-11-15 12:48:12.867928
 FINISHED SIMULATION
-Simulated 267 time steps of 0.0075 time units for a total of 2 time units.
-Simulation finished in 0.08 seconds.
+Simulated 8000 time steps of 0.00025 time units for a total of 2 time units.
+Simulation finished in 2.4 seconds.
 
->>> 2022-11-15 10:53:52.454987
+>>> 2022-11-15 12:48:12.957280
 SAVING RESULTS
-Saved results to 'results/timestep_scan/Corrected ts=0.0075 2022-11-15 10:53:52.csv'.
+Saved results to 'results/timestep_scan/Corrected ts=0.00025 2022-11-15 12:48:10.csv'.
 
