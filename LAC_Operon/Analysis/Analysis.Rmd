@@ -1,0 +1,105 @@
+---
+title: "Simulation and model analysis"
+subtitle: "Non Linear Dynamics"
+author: "Frederik Espersen Knudsen"
+date: "2022-11-11"
+output: pdf_document
+---
+
+# LAC Operon Model analysis
+Based on Yildirim et al. 2004.  
+
+See repository for more information.  
+
+## Setup
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(broom)
+```
+  
+\newpage  
+# Scan of appropriate time step size
+### Loading simulation results
+Loading and structuring data:
+```{r echo=FALSE}
+results_dir = "../Results/timestep_scan"
+data <-
+  tibble(Filename = list.files(results_dir, pattern=".csv")) %>%
+  mutate(Data = map(paste(results_dir, Filename, sep="/"), read.csv)) %>%
+  unnest(Data) %>%
+  pivot_longer(c(M, B, A), names_to="Species", values_to="Concentration") %>%
+  select(-Filename) %>%
+  nest(Data = c(Time, Species, Concentration))
+
+data %>% glimpse()
+data %>% pluck("Data", 1) %>% head()
+```
+  
+###  Visualizing results
+```{r echo=FALSE}
+data %>%
+  unnest(Data) %>% 
+  filter(Concentration > 0 & Concentration < 1000000000) %>%
+  mutate(Timestep = Timestep * 60 * 1e3) %>%
+  ggplot(aes(x=Time, y=Concentration, color=Timestep, lty=Model)) +
+    geom_line(alpha=0.5) +
+    geom_point(size=0.2) +
+    facet_grid(Species~Timestep, scales="free_y") +
+    theme_bw()
+
+data %>%
+  unnest(Data) %>% 
+  filter(Concentration > 0 & Concentration < 1000000000) %>%
+  mutate(Timestep = Timestep * 60 * 1e3,
+         Time = Time * 60) %>%
+  filter(Time < 1.8) %>%
+  ggplot(aes(x=Time, y=Concentration, color=Model, lty=Model)) +
+    geom_line(alpha=0.5) +
+    geom_point(size=0.2) +
+    facet_grid(Species~Timestep, scales="free_y") +
+    labs(title="Time course of species by time step size [ms]",
+         subtitle="Scan of time step size") +
+    xlab("Time [s]") +
+    ylab("Concentration [nM]") +
+    theme_bw()
+```
+
+ 
+\newpage  
+# Scan of starting conditions
+  
+### Loading simulation results
+Loading and structuring data:
+```{r echo=FALSE}
+results_dir = "../Results/starting_conditions_scan"
+data <- 
+  tibble(Filename = list.files(results_dir, pattern=".csv")) %>%
+  mutate(Data = map(paste(results_dir, Filename, sep="/"), read.csv)) %>%
+  unnest(Data) %>%
+  pivot_longer(c(M, B, A), names_to="Species", values_to="Concentration") %>%
+  select(-Filename) %>%
+  nest(Data = c(Time, Species, Concentration))
+
+data %>% glimpse()
+data %>% pluck("Data", 1) %>% head()
+```
+  
+### Visualizing results
+```{r}
+data %>%
+  unnest(Data) %>%
+  mutate(Time = Time * 60,
+         L = L * 1e-3) %>%
+  filter(Time < 3) %>%
+  ggplot(aes(x=Time, y=Concentration, color=Model, fill=paste0(M_0, B_0, A_0))) +
+    geom_line(size=0.1) +
+    scale_y_log10() +
+    facet_grid(Species~L, scales="free_y") +
+    labs(title="Time course of species by lactose concentrations [µM]",
+         substitle="Scan of starting conditions") +
+    xlab("Time [s]") +
+    ylab("Concentration [nM]") +
+    theme_bw()
+```
+

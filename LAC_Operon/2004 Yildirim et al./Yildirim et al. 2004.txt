@@ -1,0 +1,7 @@
+The LAC_Operon directory investigates the models described in Yildirim et al. 2004.
+
+    Title:              Dynamics and bistability in a reduced model of the lac operon
+    Authors:            Necmettin Yildirim, Moises Santillan, Daisuke Horike, Michael C Mackey
+    Publication date:   11th of May 2004
+    DOI:                https://doi.org/10.1063/1.1689451
+    Journal:            Chaos, 14, 279

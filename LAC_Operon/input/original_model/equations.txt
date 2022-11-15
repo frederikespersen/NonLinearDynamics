@@ -1,8 +1,0 @@
-> EQUATIONS FOR LAC OPERON MODEL (YILDIRIM ET AL. 2004)
->
-> Ensure the following equation format:
->   - Each species must be provided with a time index, current time is '@'
->
-M: alpha_M * ((1 + K_1 * ((exp(-mu * tau_M) * A[@-tau_M]) ** n)) / (K + K_1 * ((exp(-mu * tau_M) * A[@-tau_M]) ** n))) - (gamma_M + mu) * M[@]
-B: alpha_B * exp(-mu * tau_B) * M[@-tau_B] - (gamma_B + mu) * B[@]
-A: alpha_A * B[@] * ((L) / (K_L + L)) - beta_A * B[@] * ((A[@]) / (K_A + A[@])) - (gamma_A + mu) * A[@]
