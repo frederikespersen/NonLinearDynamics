@@ -1,0 +1,100 @@
+---
+title: "Simulation and model analysis"
+subtitle: "Non Linear Dynamics"
+author: "Frederik Espersen Knudsen"
+date: "2022-11-11"
+output: pdf_document
+---
+
+# LAC Operon Model analysis
+Based on Yildirim et al. 2004.  
+
+See repository for more information.  
+
+## Setup
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(broom)
+options(scipen=999)
+```
+  
+\newpage  
+# Scan of appropriate time step size
+### Loading simulation results
+Loading and structuring data:
+```{r}
+results_dir = "results/timestep_scan"
+data <-
+  tibble(filename = list.files(results_dir, pattern=".csv")) %>%
+  mutate(model = map_chr(filename, ~ str_split(.x , " ") %>% pluck(1, 1)),
+         timestep = map_chr(filename, ~ str_split(.x, " ") %>% pluck(1, 2) %>% str_split("=") %>% pluck(1, 2)),
+         data = map(paste(results_dir, filename, sep="/"), read.csv),
+         data = map(data, ~ .x %>% pivot_longer(-Time, names_to="Species", values_to="Concentration"))) %>%
+  select(-filename)
+
+data %>% glimpse()
+data %>% pluck("data", 1) %>% head()
+```
+
+###  Visualizing results
+```{r}
+data %>%
+  unnest(data) %>% 
+  filter(Concentration > 0) %>%
+  filter(Time < 0.03) %>%
+  ggplot(aes(x=Time, y=Concentration, color=timestep)) +
+    geom_line() +
+    facet_grid(Species~model, scales="free_y") +
+    theme_classic()
+  
+```
+
+\newpage  
+# Models with a scan of starting conditions
+(No data available - still fine tuning simulation parameters like timestep)
+
+### Loading simulation results
+Loading data into dataframes
+```{r message=FALSE, warning=FALSE, eval=FALSE}
+import_data <- read_csv("results/Starting conditions scan 2022-11-14 00:33:10.csv") %>%
+  mutate(across(c(Model, Starting_Conditions_Set, L), as.factor))
+
+import_data %>% head()
+import_data %>% glimpse()
+```
+### Transforming data
+```{r eval=FALSE}
+data <- 
+  import_data %>%
+  pivot_longer(cols=c(M, B, A), names_to="Species", values_to="Concentration") %>%
+  mutate(Species = as.factor(Species)) %>%
+  nest(data=c(Time, Species, Concentration))
+```
+
+### Visualising results
+```{r eval=FALSE}
+data %>%
+  filter(Model == "Corrected") %>%
+  unnest(data) %>%
+  ggplot(aes(x=Time, y=Concentration, color=Starting_Conditions_Set)) +
+    geom_line(show.legend=F) +
+    facet_grid(Species~L, scales="free_y") +
+    #scale_y_log10() +
+    labs(title="Time progression curves for the three species for different Lactose concentrations [nM]") +
+    xlab("Time [min]") +
+    ylab("Concentration [nM]") +
+    theme_classic()
+```
+
+### Model analysis
+Checking hypothesis: There is no significant difference between the data measured with either model.
+```{r eval=FALSE}
+data %>%
+  unnest(data) %>%
+  group_by(Species) %>%
+  nest() %>%
+  mutate(F_test = map(data, ~ aov(Concentration ~ Model + Time + L + Starting_Conditions_Set, data = .x) %>% tidy() %>% pluck("p.value", 1))) %>%
+  unnest(F_test)
+```
+
