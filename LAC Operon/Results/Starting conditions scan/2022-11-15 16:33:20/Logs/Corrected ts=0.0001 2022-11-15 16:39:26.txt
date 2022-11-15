@@ -1,0 +1,43 @@
+>>> 2022-11-15 16:39:26.252459
+INITIALIZING SYSTEM
+System species:
+  - M,   dM/dt =alpha_M * ((1 + K_1 * ((A[@-tau_M]) ** n)) / (K + K_1 * ((A[@-tau_M]) ** n))) - (gamma_M + mu) * M[@]
+  - B,   dB/dt =alpha_B * M[@-tau_B] - (gamma_B + mu) * B[@]
+  - A,   dA/dt =alpha_A * B[@] * ((L) / (K_L + L)) - beta_A * B[@] * ((A[@]) / (K_A + A[@])) - (gamma_A + mu) * A[@]
+(@: The current time t)
+
+Global system parameters:
+  - mu:      0.0347
+  - alpha_M: 997.0
+  - alpha_B: 0.0166
+  - alpha_A: 17600.0
+  - gamma_M: 0.411
+  - gamma_B: 0.000833
+  - gamma_A: 0.0135
+  - n:       2.0
+  - K:       7200.0
+  - K_1:     2.52e-08
+  - K_L:     970000.0
+  - K_A:     1950000.0
+  - beta_A:  21500.0
+  - tau_M:   0.1
+  - tau_B:   2.0
+  - L:       50000.0
+
+>>> 2022-11-15 16:39:26.268168
+SETTING UP SIMULATION
+Time parameters have been scaled appropriately and initial data has been set up.
+
+>>> 2022-11-15 16:39:26.268391
+STARTING UP SIMULATION
+Running simulation. This may take a while...
+
+>>> 2022-11-15 16:39:27.843660
+FINISHED SIMULATION
+Simulated 5000 time steps of 0.0001 time units for a total of 0.5 time units.
+Simulation finished in 1.57 seconds.
+
+>>> 2022-11-15 16:39:27.898847
+SAVING RESULTS
+Saved Results to '../Results/Starting conditions scan/2022-11-15 16:33:20/Corrected L=50000.0 (M,B,A)=(12,1,1000.0) 2022-11-15 16:39:26.csv'.
+

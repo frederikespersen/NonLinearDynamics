@@ -20,7 +20,7 @@ species = [*corrected_equations.keys()]
 # Setting simulation parameters
 time = 0.5
 timestep = 0.0001
-result_dir = f"../Results/starting_conditions_scan/{datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')}"
+result_dir = f"../Results/Starting conditions scan/{datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')}"
 
 
 # Setting starting condition sets

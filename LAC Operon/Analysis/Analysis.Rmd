@@ -22,7 +22,7 @@ library(broom)
 ### Loading simulation results
 Loading and structuring data:
 ```{r echo=FALSE}
-timestep_results_dir = "../Results/Timestep scan/2022-11-15 15:21:18"
+timestep_results_dir = "../Results/Timestep scan/2022-11-15 16:32:05"
 
 timestep_data <-
   tibble(Filename = list.files(timestep_results_dir, pattern=".csv")) %>%
@@ -79,7 +79,7 @@ timestep_data %>%
 ### Loading simulation results
 Loading and structuring data:
 ```{r echo=FALSE}
-conditions_results_dir = "../Results/Starting conditions scan/2022-11-15 15:43:15"
+conditions_results_dir = "../Results/Starting conditions scan/2022-11-15 16:33:20"
 
 conditions_data <-
   tibble(Filename = list.files(conditions_results_dir, pattern=".csv")) %>%
