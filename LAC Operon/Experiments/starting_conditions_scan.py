@@ -40,7 +40,6 @@ for L, M, B, A in itertools.product(Ls, M_starts, B_starts, A_starts):
         starting_conditions = {'M': M,
                                'B': B,
                                'A': A}
-        starting_conditions_set = f'(M={M}, B={B}, A={A})'
 
         # Running simulations
         LACOperon = NLSystem(species=species,
